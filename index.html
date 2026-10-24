@@ -162,7 +162,7 @@
       <div class="timeline-item" onclick="switchView('day5')"><div class="td">Oct 28</div><div><div class="tt">Cartagena → Guatapé</div><div class="ts">Fly CTG → MDE, GuatExpress SUV to The Brown</div></div></div>
       <div class="timeline-item" onclick="switchView('day6')"><div class="td">Oct 29</div><div><div class="tt">Canyoning &amp; Guatapé town</div><div class="ts">Koora Canyoning, zócalos, lake boat ride</div></div></div>
       <div class="timeline-item" onclick="switchView('day7')"><div class="td">Oct 30</div><div><div class="tt">El Peñol → Medellín</div><div class="ts">Climb the rock, checkout, Hotel Du Parc</div></div></div>
-      <div class="timeline-item" onclick="switchView('day8')"><div class="td">Oct 31</div><div><div class="tt">Comuna 13</div><div class="ts">Tour with Erika at 9 AM, Halloween afternoon</div></div></div>
+      <div class="timeline-item" onclick="switchView('day8')"><div class="td">Oct 31</div><div><div class="tt">Comuna 13</div><div class="ts">Tour with Erika at 9 AM, Halloween afternoon, dinner at Carmen</div></div></div>
       <div class="timeline-item" onclick="switchView('day9')"><div class="td">Nov 1</div><div><div class="tt">Parque Arví</div><div class="ts">Metrocable, nature reserve, Arví market lunch</div></div></div>
       <div class="timeline-item" onclick="switchView('departure')"><div class="td">Nov 2</div><div><div class="tt">Fly home</div><div class="ts">MDE → IAH → SFO (Colombian holiday Monday)</div></div></div>
 
@@ -185,7 +185,7 @@
           <span class="tag tag-amber">Confirm: Fragata pickup time (Oct 27)</span>
           <span class="tag tag-amber">Confirm: Hotel Du Parc covers 5 guests</span>
         </div>
-        <div class="stop-desc">Booked &amp; confirmed: all flights, Casona del Porvenir, Crazy Salsa, Candé, Andrés Carne de Res, Fragata overnight, Celele, The Brown, Koora Canyoning, Hotel Du Parc.</div>
+        <div class="stop-desc">Booked &amp; confirmed: all flights, Casona del Porvenir, Crazy Salsa, Candé, Andrés Carne de Res, Fragata overnight, Celele, Carmen, The Brown, Koora Canyoning, Hotel Du Parc.</div>
       </div>
     </div>
 
@@ -533,6 +533,14 @@
         <div class="stop-desc">Kids dress up and trick-or-treat at the malls — Santafé and El Tesoro are close to El Poblado. Bring costumes if you packed any; otherwise pool time at the hotel.</div>
         <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
       </div>
+      <div class="stop-card">
+        <div class="time-label">6:45 PM</div>
+        <div class="stop-name">🍴 Dinner at Carmen</div>
+        <div class="stop-desc">Chef-driven modern Colombian in El Poblado — known for its tasting menu built on Colombian ingredients, with à la carte mains too.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Carmen+Restaurant+Carrera+36+10A-27+Medellin" target="_blank">Cra. 36 #10A-27, El Poblado</a></div>
+        <div class="directions"><b>From hotel:</b> ~10 min walk or a short taxi.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked · OpenTable Conf: 1255</span><span class="tag tag-purple">⭐ Splurge dinner</span></div>
+      </div>
     </div>
 
     <!-- DAY 9 -->
@@ -702,7 +710,8 @@ const dayMarkers = {
   day8: [
     {latlng:[6.2090,-75.5679], num:1, color:'#2563eb', label:'Hotel Du Parc'},
     {latlng:[6.2520,-75.6250], num:2, color:'#16a34a', label:'Comuna 13 · 9 AM'},
-    {latlng:[6.1966,-75.5585], num:3, color:'#8b5cf6', label:'Santafé mall (Halloween)'}
+    {latlng:[6.1966,-75.5585], num:3, color:'#8b5cf6', label:'Santafé mall (Halloween)'},
+    {latlng:[6.2088,-75.5675], num:4, color:'#f97316', label:'Carmen · 6:45 PM'}
   ],
   day9: [
     {latlng:[6.2090,-75.5679], num:1, color:'#2563eb', label:'El Poblado'},
@@ -730,7 +739,7 @@ const exploreLocations = [
   {name:'El Boliche Cebichería', cat:'restaurant', hood:'Getsemaní, Cartagena', note:'Ceviche and cocktails', latlng:[10.4209,-75.5469]},
   {name:'Demente', cat:'restaurant', hood:'San Diego, Cartagena', note:'Avant-garde tasting menu', latlng:[10.4248,-75.5487]},
   {name:'OCI.MDE', cat:'restaurant', hood:'El Poblado, Medellín', note:'Modern Colombian tasting menu', latlng:[6.2095,-75.5661]},
-  {name:'Carmen Medellín', cat:'restaurant', hood:'El Poblado, Medellín', note:'Sister restaurant to Carmen Cartagena', latlng:[6.2088,-75.5675]},
+  {name:'Carmen Medellín', cat:'restaurant', hood:'El Poblado, Medellín', note:'Modern Colombian · Day 8 dinner, 6:45 PM', latlng:[6.2088,-75.5675]},
   {name:'El Cielo', cat:'restaurant', hood:'El Poblado, Medellín', note:'Experiential tasting menu', latlng:[6.2100,-75.5685]},
   {name:'Mondongos', cat:'restaurant', hood:'El Poblado, Medellín', note:'Classic Paisa comfort food', latlng:[6.2078,-75.5690]},
   {name:'Café del Mar', cat:'bar', hood:'On the Walls, Cartagena', note:'Sunset drinks atop the city walls · Day 2', latlng:[10.4226,-75.5535]},
