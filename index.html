@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartagena &amp; Medellín Trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --green-bg: #d1fae5; --green-text: #065f46;
+    --red-bg: #fee2e2; --red-text: #991b1b;
+    --amber-bg: #fef3c7; --amber-text: #92400e;
+    --purple-bg: #ede9fe; --purple-text: #5b21b6;
+    --orange-bg: #ffedd5; --orange-text: #9a3412;
+    --teal-bg: #ccfbf1; --teal-text: #0f766e;
+    --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-300:#d1d5db;
+    --gray-400:#9ca3af; --gray-500:#6b7280; --gray-600:#4b5563; --gray-700:#374151;
+    --gray-800:#1f2937; --gray-900:#111827;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; margin:0; padding:0; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--gray-800); background: var(--gray-50); display:flex; flex-direction:column; }
+
+  header { flex-shrink:0; background:#fff; border-bottom:1px solid var(--gray-200); z-index:20; }
+  .topbar { display:flex; align-items:center; gap:16px; padding:14px 20px; }
+  .topbar h1 { font-size:18px; font-weight:800; margin:0; white-space:nowrap; }
+  .topbar .sub { font-size:12px; color: var(--gray-500); white-space:nowrap; }
+  .search-wrap { flex:1; position:relative; max-width:420px; }
+  .search-wrap input { width:100%; padding:9px 14px 9px 34px; border-radius:10px; border:1px solid var(--gray-200); background:var(--gray-50); font-size:13px; font-family:inherit; }
+  .search-wrap input:focus { outline:2px solid var(--blue); background:#fff; }
+  .search-icon { position:absolute; left:11px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--gray-400); }
+  #searchResults { position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--gray-200); border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,.12); max-height:320px; overflow-y:auto; z-index:50; }
+  #searchResults .res-item { padding:9px 14px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--gray-100); }
+  #searchResults .res-item:hover { background: var(--blue-light); }
+  #searchResults .res-item b { display:block; font-size:13px; }
+  #searchResults .res-item span { font-size:11px; color:var(--gray-500); }
+
+  .tabs { display:flex; overflow-x:auto; gap:2px; padding:0 20px; scrollbar-width:thin; }
+  .tabs::-webkit-scrollbar { height:4px; }
+  .tab { flex-shrink:0; padding:10px 14px; font-size:12.5px; font-weight:600; color:var(--gray-500); cursor:pointer; border-bottom:2.5px solid transparent; white-space:nowrap; }
+  .tab:hover { color: var(--gray-800); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .main { flex:1; display:flex; min-height:0; }
+  .panel { width:390px; flex-shrink:0; overflow-y:auto; border-right:1px solid var(--gray-200); background:#fff; }
+  .mapwrap { flex:1; position:relative; }
+  #map { position:absolute; inset:0; }
+  .center-btn { position:absolute; bottom:18px; right:12px; z-index:400; background:#fff; border:1px solid var(--gray-200); border-radius:10px; padding:8px 12px; font-size:12px; font-weight:600; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.12); }
+
+  .view { display:none; padding:18px; }
+  .view.active { display:block; }
+
+  .hero-img { width:100%; height:140px; object-fit:cover; border-radius:12px; margin-bottom:14px; display:block; background:var(--gray-100); }
+
+  .stat-row { display:flex; gap:10px; margin-bottom:16px; }
+  .stat-tile { flex:1; background:var(--blue-light); border-radius:10px; padding:10px; text-align:center; }
+  .stat-tile .n { font-size:18px; font-weight:800; color:var(--blue); }
+  .stat-tile .l { font-size:10px; color:var(--gray-600); text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }
+
+  h2.day-title { font-size:17px; font-weight:800; margin:0 0 2px; }
+  .day-date { font-size:12px; color:var(--gray-500); margin-bottom:14px; }
+
+  .note { border-radius:10px; padding:10px 12px; font-size:12.5px; line-height:1.5; margin-bottom:14px; }
+  .note-blue { background:var(--blue-light); color:#1e40af; }
+  .note-green { background:var(--green-bg); color:var(--green-text); }
+  .note-amber { background:var(--amber-bg); color:var(--amber-text); }
+  .note-red { background:var(--red-bg); color:var(--red-text); }
+
+  .timeline-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--gray-100); cursor:pointer; }
+  .timeline-item:hover { background:var(--gray-50); }
+  .timeline-item .td { width:68px; flex-shrink:0; font-size:11px; font-weight:700; color:var(--gray-500); padding-top:2px; }
+  .timeline-item .tt { font-size:13px; font-weight:600; }
+  .timeline-item .ts { font-size:11px; color:var(--gray-500); }
+
+  .stop-card { border:1px solid var(--gray-200); border-radius:12px; padding:12px 14px; margin-bottom:12px; background:#fff; }
+  .stop-card .time-label { font-size:11px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.03em; margin-bottom:4px; }
+  .stop-card .stop-name { font-size:14.5px; font-weight:700; margin-bottom:3px; }
+  .stop-card .stop-desc { font-size:12.5px; color:var(--gray-600); line-height:1.5; margin-bottom:8px; }
+  .stop-card .addr { font-size:11.5px; color:var(--gray-500); margin-bottom:6px; }
+  .stop-card .addr a { color:var(--blue); text-decoration:none; }
+  .stop-card .addr a:hover { text-decoration:underline; }
+  .directions { background:var(--gray-50); border-radius:8px; padding:8px 10px; font-size:11.5px; color:var(--gray-600); margin-bottom:8px; }
+  .directions b { color:var(--gray-700); }
+  .tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .tag { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .tag-green { background:var(--green-bg); color:var(--green-text); }
+  .tag-red { background:var(--red-bg); color:var(--red-text); }
+  .tag-amber { background:var(--amber-bg); color:var(--amber-text); }
+  .tag-purple { background:var(--purple-bg); color:var(--purple-text); }
+  .tag-blue { background:var(--blue-light); color:#1e40af; }
+
+  .section-label { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--gray-400); margin:18px 0 8px; }
+
+  .explore-filters { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+  .fbtn { font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:999px; border:1px solid var(--gray-200); background:#fff; cursor:pointer; color:var(--gray-600); }
+  .fbtn.active { color:#fff; border-color:transparent; }
+  .explore-item { display:flex; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--gray-100); cursor:pointer; }
+  .explore-item:hover { background: var(--gray-50); }
+  .edot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .explore-item .en { font-size:13px; font-weight:700; }
+  .explore-item .eh { font-size:11px; color:var(--gray-500); }
+
+  @media (max-width: 760px) {
+    .panel { width:100%; }
+    .mapwrap { display:none; }
+    .topbar h1 { font-size:15px; }
+    .topbar .sub { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="topbar">
+    <div>
+      <h1>Cartagena &amp; Medellín</h1>
+      <div class="sub">Oct 23 – Nov 2, 2026 · The Gogia Family</div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input id="searchInput" type="text" placeholder="Search stops, restaurants, places…" oninput="doSearch(this.value)">
+      <div id="searchResults" style="display:none;"></div>
+    </div>
+  </div>
+  <div class="tabs" id="tabsBar"></div>
+</header>
+
+<div class="main">
+  <div class="panel" id="panel">
+
+    <!-- OVERVIEW -->
+    <div class="view active" id="view-overview">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Cartagena,_Colombia_(5049256137).jpg?width=1200" alt="Cartagena">
+      <h2 class="day-title">Trip Overview</h2>
+      <div class="day-date">Oct 23 – Nov 2, 2026 · 2 adults, kids 7/11/12</div>
+
+      <div class="stat-row">
+        <div class="stat-tile"><div class="n">10</div><div class="l">Nights</div></div>
+        <div class="stat-tile"><div class="n">2</div><div class="l">Cities</div></div>
+        <div class="stat-tile"><div class="n">5</div><div class="l">Travelers</div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-tile"><div class="n">3</div><div class="l">Cartagena nights</div></div>
+        <div class="stat-tile"><div class="n">1</div><div class="l">Rosario Islands</div></div>
+        <div class="stat-tile"><div class="n">5</div><div class="l">Medellín nights</div></div>
+      </div>
+
+      <div class="note note-amber"><b>💡 Splurge-friendly, no dietary restrictions.</b> Pace is balanced — mornings active, afternoons built-in downtime, works well with a 7-year-old along.</div>
+
+      <div class="section-label">Trip Timeline</div>
+      <div class="timeline-item" onclick="switchView('day1')"><div class="td">Oct 23–24</div><div><div class="tt">Travel day → Cartagena</div><div class="ts">SFO → FLL → CTG, check in Casona del Porvenir</div></div></div>
+      <div class="timeline-item" onclick="switchView('day2')"><div class="td">Oct 25</div><div><div class="tt">Cartagena</div><div class="ts">Walking tour, Castillo San Felipe, salsa lesson</div></div></div>
+      <div class="timeline-item" onclick="switchView('day3')"><div class="td">Oct 26</div><div><div class="tt">Rosario Islands</div><div class="ts">Boat to Casa Fragata, beach day, overnight on the island</div></div></div>
+      <div class="timeline-item" onclick="switchView('day4')"><div class="td">Oct 27</div><div><div class="tt">Rosario → Cartagena</div><div class="ts">Beach morning, back to Cartagena, dinner at Celele</div></div></div>
+      <div class="timeline-item" onclick="switchView('day5')"><div class="td">Oct 28</div><div><div class="tt">Cartagena → Guatapé</div><div class="ts">Fly CTG → MDE, transfer to The Brown, Guatapé</div></div></div>
+      <div class="timeline-item" onclick="switchView('day6')"><div class="td">Oct 29</div><div><div class="tt">Guatapé &amp; El Peñol</div><div class="ts">Zócalos, rock climb, lakeside lunch</div></div></div>
+      <div class="timeline-item" onclick="switchView('day7')"><div class="td">Oct 30</div><div><div class="tt">Guatapé → El Poblado</div><div class="ts">Checkout, transfer, check into Hotel Du Parc</div></div></div>
+      <div class="timeline-item" onclick="switchView('day8')"><div class="td">Oct 31</div><div><div class="tt">Comuna 13</div><div class="ts">New tour — graffiti, cable car, street food</div></div></div>
+      <div class="timeline-item" onclick="switchView('day9')"><div class="td">Nov 1</div><div><div class="tt">Parque Arví</div><div class="ts">Metrocable, nature reserve, Arví market lunch</div></div></div>
+      <div class="timeline-item" onclick="switchView('departure')"><div class="td">Nov 2</div><div><div class="tt">Fly home</div><div class="ts">MDE → IAH → SFO</div></div></div>
+
+      <div class="section-label">Book These Now</div>
+      <div class="stop-card">
+        <div class="tags" style="margin-bottom:8px;">
+          <span class="tag tag-red">Lodging: Cartagena, Oct 27–28</span>
+          <span class="tag tag-red">Dinner res: Day 2 (La Vitrola, suggested)</span>
+          <span class="tag tag-red">Tour: Comuna 13 (Day 8, Oct 31 — replaces the cancelled Erika booking)</span>
+        </div>
+        <div class="stop-desc">Everything else — all flights, Casona del Porvenir, Casa Fragata, Celele, The Brown (Guatapé), Hotel Du Parc (El Poblado) — is confirmed and booked.</div>
+      </div>
+    </div>
+
+    <!-- DAY 1 -->
+    <div class="view" id="view-day1">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Cartagena_Old_City.JPG?width=900" alt="Cartagena old city">
+      <h2 class="day-title">Day 1 · Arrival in Cartagena</h2>
+      <div class="day-date">Saturday, October 24, 2026</div>
+
+      <div class="note note-green">✈️ <b>Flights booked:</b> SFO → FLL Oct 23, 11:10 PM PDT (B6 278, Conf OJVVQS) · FLL → CTG Oct 24, 9:45 AM EDT (B6 1783, Conf OXGPVR), arrives 11:37 AM local.</div>
+
+      <div class="stop-card">
+        <div class="time-label">12:00 – 2:00 PM</div>
+        <div class="stop-name">🛬 Land, clear customs, transfer</div>
+        <div class="stop-desc">Landing is ~11:37 AM; buffer for immigration, bags, and the ~20 min transfer into Centro Histórico.</div>
+        <div class="tags"><span class="tag tag-green">✓ Flight booked</span></div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">2:00 – 2:15 PM</div>
+        <div class="stop-name">🏨 Drop bags · Casona del Porvenir</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Casona+del+Porvenir+Calle+del+Porvenir+Cra+6+35-38+Cartagena" target="_blank">Calle del Porvenir, Cra. 6 #35-38, Centro Histórico</a></div>
+        <div class="directions"><b>From airport:</b> ~20 min taxi/rideshare, ~7 km.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">2:15 – 3:15 PM</div>
+        <div class="stop-name">🍽️ Lunch — Buena Vida, La Mulata, or Pezetarian</div>
+        <div class="stop-desc">Three good casual options near the hotel — pick on the day based on the mood/line.</div>
+        <div class="directions"><b>From hotel:</b> 5–10 min walk, all within Centro/San Diego.</div>
+        <div class="tags"><span class="tag tag-blue">Kid-friendly</span></div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">3:15 – 3:45 PM</div>
+        <div class="stop-name">🌳 Parque Centenario</div>
+        <div class="stop-desc">Shady park at the edge of the walled city — sloths and iguanas often spotted in the trees, easy win with kids after a travel day.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Parque+Centenario+Cartagena" target="_blank">Parque Centenario, Cartagena</a></div>
+        <div class="directions"><b>From lunch:</b> 5 min walk.</div>
+        <div class="tags"><span class="tag tag-blue">👦 Kids love this</span></div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">3:45 – 4:40 PM</div>
+        <div class="stop-name">🏛️ Colonial streets &amp; Plaza Santo Domingo</div>
+        <div class="stop-desc">Wander the walled city's balconied streets toward Plaza Santo Domingo — home of Botero's "Gertrudis" sculpture.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Plaza+Santo+Domingo+Cartagena" target="_blank">Plaza Santo Domingo, Centro Histórico</a></div>
+        <div class="directions"><b>From Parque Centenario:</b> 10 min walk through Calle Santo Domingo.</div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">4:45 – 6:00 PM</div>
+        <div class="stop-name">🌅 Walk the walls, watch sunset</div>
+        <div class="stop-desc">Las Murallas — the old defensive walls — are the classic Cartagena sunset spot, breezy and great for kids to run along.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Baluarte+de+Santo+Domingo+Cartagena+walls" target="_blank">Baluarte de Santo Domingo</a></div>
+        <div class="directions"><b>From Plaza Santo Domingo:</b> 5 min walk.</div>
+        <div class="tags"><span class="tag tag-blue">⭐ Don't miss</span></div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">6:00 – 6:45 PM</div>
+        <div class="stop-name">🚶 Relaxed stroll toward dinner</div>
+        <div class="stop-desc">Easy evening walk back through San Diego toward Candé.</div>
+      </div>
+
+      <div class="stop-card">
+        <div class="time-label">6:45 – 8:30 PM</div>
+        <div class="stop-name">🍴 Dinner at Restaurante Candé</div>
+        <div class="stop-desc">100% Cartagenera cooking — Caribbean seafood and local classics, well-rated for groups.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Restaurante+Cande+Calle+de+la+Serrezuela+39-02+Cartagena" target="_blank">Cl. de la Serrezuela #39-02, San Diego</a></div>
+        <div class="directions"><b>From the walls:</b> 10 min walk.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked · Reservation 6:30 PM</span></div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="view" id="view-day2">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Castillo_San_Felipe_de_Barajas,_Cartagena_17.jpg?width=900" alt="Castillo San Felipe">
+      <h2 class="day-title">Day 2 · History &amp; Salsa</h2>
+      <div class="day-date">Sunday, October 25, 2026</div>
+
+      <div class="stop-card">
+        <div class="time-label">8:00 AM</div>
+        <div class="stop-name">🥐 Breakfast at Casona del Porvenir</div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">9:00 AM</div>
+        <div class="stop-name">🚶 Private guided walking tour</div>
+        <div class="stop-desc">A local guide through the walled city's history — forts, convents, and the slave-trade history of Cartagena, told in a way that works for 7–12 year olds.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">11:15 AM</div>
+        <div class="stop-name">🏰 Castillo San Felipe de Barajas</div>
+        <div class="stop-desc">The largest Spanish fort in the Americas — tunnels, ramparts, and great views. Kids usually love the tunnels; bring water and sun hats, it gets hot with no shade.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Castillo+San+Felipe+de+Barajas+Cartagena" target="_blank">Castillo San Felipe de Barajas</a></div>
+        <div class="directions"><b>From Centro:</b> ~10 min taxi/rideshare.</div>
+        <div class="tags"><span class="tag tag-amber">☀️ Hot, little shade</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">1:00 PM</div>
+        <div class="stop-name">🍝 Lunch at Da Pietro</div>
+        <div class="stop-desc">Well-loved Italian spot in the historic center — reliable, easy win for kids (pasta/pizza) after a hot morning at the fort.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Da+Pietro+Calle+Cochera+del+Hobo+Cra+8+38-71+Cartagena" target="_blank">Cl. Cochera del Hobo, Cra. 8 #38-71, Centro</a></div>
+        <div class="directions"><b>From the castle:</b> ~10 min taxi back into Centro.</div>
+        <div class="tags"><span class="tag tag-blue">🍝 Kid-friendly</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">2:15 PM</div>
+        <div class="stop-name">🏊 Hotel break</div>
+        <div class="stop-desc">Built-in downtime — pool/rest at Casona del Porvenir before the salsa lesson.</div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">4:00 PM</div>
+        <div class="stop-name">💃 Private family salsa lesson — Crazy Salsa</div>
+        <div class="stop-desc">Crazy Salsa has two locations — confirmed for this class: Carrera 8 #8-85, Av. Carlos Escallón, Ed. Banco Santander, Of. 302, near Parque de las Flores.</div>
+        <div class="addr">📍 <a href="https://maps.google.com/?q=10.424892,-75.547531" target="_blank">Cra. 8 #8-85, Ed. Banco Santander, Of. 302</a></div>
+        <div class="directions"><b>From hotel:</b> ~5 min walk — note this is a different address than Crazy Salsa's main studio, double-check you're headed to the right one.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span><span class="tag tag-blue">👦 Kids love this</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">5:00 PM</div>
+        <div class="stop-name">🚿 Return to hotel, freshen up</div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">7:00 PM</div>
+        <div class="stop-name">🍴 Dinner — La Vitrola <span style="font-weight:400;color:var(--gray-500);font-size:12px;">(swapped — Candé is already Day 1)</span></div>
+        <div class="stop-desc">Classic Cartagena dinner spot, live Cuban/Latin music most nights, dressy-casual — fits a splurge-friendly budget well. Suggested; not booked yet.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=La+Vitrola+Restaurant+Cartagena" target="_blank">Calle Baloco, Centro Histórico</a></div>
+        <div class="tags"><span class="tag tag-red">🔴 Reserve now</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">8:30 PM</div>
+        <div class="stop-name">🌙 Short evening walk through the Walled City</div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="view" id="view-day3">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Islas_del_Rosario_-_Cartagena_(8).jpg?width=900" alt="Rosario Islands">
+      <h2 class="day-title">Day 3 · Rosario Islands</h2>
+      <div class="day-date">Monday, October 26, 2026</div>
+
+      <div class="note note-green">🛥️ <b>Private boat transfer booked</b> — departs Cartagena 9:00 AM for Casa Fragata, Isla Grande.</div>
+
+      <div class="stop-card">
+        <div class="time-label">9:00 AM</div>
+        <div class="stop-name">🛥️ Private boat transfer to Rosario Islands</div>
+        <div class="stop-desc">~45–60 min boat ride through the bay and out to the Rosario archipelago, a protected coral-reef national park.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Late morning – evening</div>
+        <div class="stop-name">🏝️ Beach day at Casa Fragata</div>
+        <div class="stop-desc">Calm, clear water — easy snorkeling right off the island, good for all three kids. Keep sun protection heavy; little natural shade on the islands.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Fragata+Island+House+Isla+Grande+Islas+del+Rosario" target="_blank">Casa Fragata, Isla Grande, Islas del Rosario</a></div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span><span class="tag tag-amber">☀️ Pack reef-safe sunscreen</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Overnight</div>
+        <div class="stop-name">🌊 Casa Fragata</div>
+        <div class="stop-desc">One night on the island — no cars, no crowds, just water and hammocks.</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="view" id="view-day4">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Isla_del_Rosario_1.jpg?width=900" alt="Rosario Island beach">
+      <h2 class="day-title">Day 4 · Beach → Back to Cartagena</h2>
+      <div class="day-date">Tuesday, October 27, 2026</div>
+
+      <div class="stop-card">
+        <div class="time-label">Morning – 3:00 PM</div>
+        <div class="stop-name">🏖️ Beach morning at Casa Fragata</div>
+        <div class="stop-desc">Last stretch of island time before the boat back — swim, kayak if available, relax.</div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">3:00 PM</div>
+        <div class="stop-name">🛥️ Private boat returns to Cartagena</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Evening</div>
+        <div class="stop-name">🏨 Where to sleep tonight?</div>
+        <div class="stop-desc">Oct 27–28 night in Cartagena is still open — easiest is to rebook Casona del Porvenir if they have the room, otherwise another Centro/Getsemaní hotel.</div>
+        <div class="tags"><span class="tag tag-red">🔴 Book lodging</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">6:30 PM</div>
+        <div class="stop-name">🍴 Celele</div>
+        <div class="stop-desc">Contemporary Caribbean tasting menu in Getsemaní — one of Latin America's 50 Best, playful plates built on Colombian produce.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Celele+Restaurant+Cra+10C+29-200+Getsemani+Cartagena" target="_blank">Cra. 10C #29-200, Calle del Espíritu Santo, Getsemaní</a></div>
+        <div class="tags"><span class="tag tag-green">✓ Booked · Table for 5 · Under Jaspaul Gogia</span><span class="tag tag-purple">⭐ Latin America's 50 Best</span></div>
+      </div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div class="view" id="view-day5">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Calle_de_los_z%C3%B3calos_en_Guatap%C3%A9.JPG?width=900" alt="Guatapé">
+      <h2 class="day-title">Day 5 · On to Guatapé</h2>
+      <div class="day-date">Wednesday, October 28, 2026</div>
+      <div class="note note-blue">💡 Plan changed: Medellín lodging turned out to be a 2-night stay in <b>Guatapé</b> first (The Brown, Autograph Collection), not El Poblado — and that works out well: José María Córdova Airport (MDE) is actually closer to Guatapé than to El Poblado.</div>
+
+      <div class="stop-card">
+        <div class="time-label">Morning</div>
+        <div class="stop-name">🕰️ Open — last few hours in Cartagena</div>
+        <div class="stop-desc">Nothing planned yet. Good options: a slow breakfast, last market run, or just pool time before the flight.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Open</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">11:00 AM – 12:10 PM</div>
+        <div class="stop-name">✈️ Flight CTG → MDE</div>
+        <div class="stop-desc">Avianca AV9717 · Direct, 1h10m · Airbus A320 · Economy (Classic fare: 1 personal item, 1 carry-on 10kg, 1 checked bag 23kg).</div>
+        <div class="addr">📍 Rafael Núñez Airport (CTG) → José María Córdova Airport (MDE)</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">After landing</div>
+        <div class="stop-name">🚗 Transfer to Guatapé</div>
+        <div class="stop-desc">~1–1.5 hrs from the airport (shorter than going into El Poblado first) — worth a private driver straight from arrivals given the group size and bags. You'll land 12:10 PM with a 4:00 PM check-in, so there's a comfortable buffer.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Arrange transfer</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">4:00 PM</div>
+        <div class="stop-name">🏨 Check in — The Brown, Guatapé, Autograph Collection</div>
+        <div class="stop-desc">2 nights (Oct 28–30). Lakeside, 2 min from the Peñol-Guatapé reservoir. Under Jaspaul Gogia.</div>
+        <div class="addr">📍 <a href="https://www.marriott.com/MDELG" target="_blank">El Peñol-Guatapé Paraje, Vereda Los Naranjos</a> · +57 317 019 7951</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+    </div>
+
+    <!-- DAY 6 -->
+    <div class="view" id="view-day6">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/El_Pe%C3%B1ol_de_Guatap%C3%A9_%28The_Rock_of_Guatape%29_2017-04-10.jpg?width=900" alt="Piedra del Peñol">
+      <h2 class="day-title">Day 6 · Guatapé &amp; El Peñol</h2>
+      <div class="day-date">Thursday, October 29, 2026</div>
+      <div class="note note-green">✓ Full day based from the hotel — no 4-hr round-trip drive needed since you're already staying in Guatapé.</div>
+
+      <div class="stop-card">
+        <div class="time-label">Morning</div>
+        <div class="stop-name">🪨 Climb Piedra del Peñol</div>
+        <div class="stop-desc">740 steps up the giant granite rock for a sweeping view over the reservoir's islands and inlets — a real "wow" moment, and a manageable climb for an 11- and 12-year-old (7-year-old may need some carrying/breaks, there are rest landings). 2 min from the hotel.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Piedra+del+Penol+Guatape" target="_blank">Piedra del Peñol</a></div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span><span class="tag tag-purple">⭐ Don't miss</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Midday</div>
+        <div class="stop-name">🍽️ Lakeside lunch</div>
+        <div class="stop-desc">Plenty of restaurants with reservoir views near the rock or in town.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Afternoon</div>
+        <div class="stop-name">🎨 Guatapé town &amp; the zócalos</div>
+        <div class="stop-desc">Colombia's most colorful town — hand-painted zócalo murals cover the base of every building, each telling a different story. This is the best "sights/murals" stop of the whole trip.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Guatape+Colombia" target="_blank">Guatapé, Antioquia</a></div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span><span class="tag tag-blue">👦 Kids love this</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Late afternoon</div>
+        <div class="stop-name">🍧 Ice cream / local sweets in town</div>
+        <div class="stop-desc">Guatapé's main square has easy, casual heladerías and dulce stands — low-stakes, kid-approved, no "connoisseur" pressure.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Evening</div>
+        <div class="stop-name">🌊 Dinner at the hotel / in town</div>
+        <div class="stop-desc">Second night at The Brown — no need to rush back anywhere.</div>
+      </div>
+    </div>
+
+    <!-- DAY 7 -->
+    <div class="view" id="view-day7">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Avenida_El_Poblado-Medellin.jpg?width=900" alt="El Poblado">
+      <h2 class="day-title">Day 7 · Guatapé → Medellín</h2>
+      <div class="day-date">Friday, October 30, 2026</div>
+      <div class="note note-green">✓ Comuna 13 with Erika (originally booked today) is cancelled — it conflicted with this checkout. A different Comuna 13 tour is now planned for Day 8 (Oct 31) instead.</div>
+
+      <div class="stop-card">
+        <div class="time-label">By 12:00 PM</div>
+        <div class="stop-name">🏨 Checkout — The Brown, Guatapé</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Afternoon</div>
+        <div class="stop-name">🚗 Transfer to El Poblado</div>
+        <div class="stop-desc">~1–1.5 hrs from Guatapé back into Medellín.</div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Evening</div>
+        <div class="stop-name">🏨 Check in — Hotel Du Parc</div>
+        <div class="stop-desc">Royal Suite · Bed &amp; Breakfast · 3 nights (Oct 30–Nov 2) · Booking ID 29b8c4jg91 · Total COP 4,740,960 · Under Jaspaul Gogia. Two blocks from Parque Lleras.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Du+Parc+Calle+9+41-36+Medellin" target="_blank">Calle 9 #41-36, El Poblado</a></div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span><span class="tag tag-amber">⚠️ Occupancy listed as "2 adults" — confirm with the hotel that all 3 kids are covered</span></div>
+      </div>
+    </div>
+
+    <!-- DAY 8 -->
+    <div class="view" id="view-day8">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Graffiti_in_Comuna_13,_Medell%C3%ADn_08.jpg?width=900" alt="Comuna 13 graffiti">
+      <h2 class="day-title">Day 8 · Comuna 13</h2>
+      <div class="day-date">Saturday, October 31, 2026</div>
+      <div class="note note-amber">💡 New tour, not yet booked — the original (with Erika) was cancelled due to the Guatapé checkout conflict. Note: this is Halloween, but Medellín doesn't celebrate it the way the US does, so it won't affect the day.</div>
+
+      <div class="stop-card">
+        <div class="time-label">Morning</div>
+        <div class="stop-name">🎨 Comuna 13 Graffiti Tour, Cable Car &amp; Street Food</div>
+        <div class="stop-desc">Walking tour through Comuna 13's famous graffiti and outdoor escalators, plus a cable car ride and street food stops — a powerful mix of street art and the neighborhood's history. Great for the older two kids; 7-year-old should be fine with stroller-free walking and some stairs.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Comuna+13+San+Javier+Medellin" target="_blank">Comuna 13, San Javier, Medellín</a></div>
+        <div class="directions"><b>From El Poblado:</b> ~25–30 min rideshare or Metro + local transfer.</div>
+        <div class="tags"><span class="tag tag-red">🔴 Book tour</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Afternoon/evening</div>
+        <div class="stop-name">🕰️ Open</div>
+        <div class="stop-desc">Nothing planned yet after the tour.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Open</span></div>
+      </div>
+    </div>
+
+    <!-- DAY 9 -->
+    <div class="view" id="view-day9">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/Metrocable_Medellin.jpeg?width=900" alt="Metrocable, Medellín">
+      <h2 class="day-title">Day 9 · Parque Arví</h2>
+      <div class="day-date">Sunday, November 1, 2026</div>
+      <div class="note note-amber">💡 Suggested — nothing booked yet, built around "Parque Arví for sure." Last full day before flying home, so keep it unhurried.</div>
+
+      <div class="stop-card">
+        <div class="time-label">9:00 AM</div>
+        <div class="stop-name">🚡 Metrocable to Parque Arví</div>
+        <div class="stop-desc">Ride the Línea K cable car up over Comuna 1 to Santo Domingo, then transfer to Línea L — a scenic 20-min gondola ride over the city and into the mountains. One of Medellín's signature experiences and an easy win with kids.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Acevedo+Metro+Station+Medellin" target="_blank">Acevedo Station → Parque Arví</a></div>
+        <div class="directions"><b>From El Poblado:</b> ~20 min to the Metro, then the cable car.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">10:00 AM – 1:00 PM</div>
+        <div class="stop-name">🌲 Parque Arví</div>
+        <div class="stop-desc">Nature reserve with easy trails, an orchid greenhouse, and (seasonally) zip-lines and horseback rides — good open-air stretch to close out the trip.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Parque+Arvi+Medellin" target="_blank">Parque Arví, Santa Elena</a></div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span><span class="tag tag-blue">👦 Kids love this</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">1:00 PM</div>
+        <div class="stop-name">🍲 Lunch at the Arví market</div>
+        <div class="stop-desc">Small food market right by the park entrance — local stalls, casual and quick, good fit for the "food" priority without a sit-down reservation.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Evening</div>
+        <div class="stop-name">🍨 Back to El Poblado — pack, casual dinner + gelato</div>
+        <div class="stop-desc">Skipping the formal chocolate-factory tours (mixed reviews, geared to connoisseurs) — a good gelato/heladería stop covers the "ice cream" ask without the gamble. Flight home is 10:40 AM Monday — keep the night low-key.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
+      </div>
+    </div>
+
+    <!-- DEPARTURE -->
+    <div class="view" id="view-departure">
+      <img class="hero-img" src="https://commons.wikimedia.org/wiki/Special:FilePath/El_Poblado_en_la_Noche-Medellin.jpg?width=900" alt="Medellín">
+      <h2 class="day-title">Departure</h2>
+      <div class="day-date">Monday, November 2, 2026</div>
+
+      <div class="stop-card">
+        <div class="time-label">10:40 AM GMT-5</div>
+        <div class="stop-name">✈️ MDE → IAH</div>
+        <div class="stop-desc">United UA 1676 · Confirmation PQLWTG · Arrives Houston 2:39 PM CST</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">Layover</div>
+        <div class="stop-name">🕐 2 hr 56 min in Houston</div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">5:35 PM CST</div>
+        <div class="stop-name">✈️ IAH → SFO</div>
+        <div class="stop-desc">United UA 371 · Arrives San Francisco 7:58 PM PST</div>
+        <div class="tags"><span class="tag tag-green">✓ Booked</span></div>
+      </div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div class="view" id="view-explore">
+      <h2 class="day-title">Explore</h2>
+      <div class="day-date">All notable spots across both cities</div>
+      <div class="explore-filters" id="exploreFilters"></div>
+      <div id="exploreList"></div>
+    </div>
+
+  </div>
+
+  <div class="mapwrap">
+    <div id="map"></div>
+    <button class="center-btn" onclick="centerOnMe()">📍 Center on me</button>
+  </div>
+</div>
+
+<script>
+// ---------- CONFIG ----------
+const TABS = [
+  {id:'overview', label:'Overview'},
+  {id:'day1', label:'Day 1 · Oct 24'},
+  {id:'day2', label:'Day 2 · Oct 25'},
+  {id:'day3', label:'Day 3 · Oct 26'},
+  {id:'day4', label:'Day 4 · Oct 27'},
+  {id:'day5', label:'Day 5 · Oct 28'},
+  {id:'day6', label:'Day 6 · Oct 29'},
+  {id:'day7', label:'Day 7 · Oct 30'},
+  {id:'day8', label:'Day 8 · Oct 31'},
+  {id:'day9', label:'Day 9 · Nov 1'},
+  {id:'departure', label:'Departure · Nov 2'},
+  {id:'explore', label:'Explore'}
+];
+
+const VIEW_CENTER = {
+  overview:   {center:[9.2, -75.0], zoom:6},
+  day1:       {center:[10.4245, -75.5490], zoom:15},
+  day2:       {center:[10.4230, -75.5480], zoom:14},
+  day3:       {center:[10.3, -75.65], zoom:9},
+  day4:       {center:[10.3, -75.6], zoom:9},
+  day5:       {center:[8.3, -75.35], zoom:7},
+  day6:       {center:[6.235, -75.185], zoom:13},
+  day7:       {center:[6.23, -75.37], zoom:9},
+  day8:       {center:[6.235, -75.60], zoom:12},
+  day9:       {center:[6.26, -75.53], zoom:11},
+  departure:  {center:[6.1645, -75.4231], zoom:11},
+  explore:    {center:[9.2, -75.0], zoom:6}
+};
+
+const dayMarkers = {
+  overview: [
+    {latlng:[10.4246,-75.5490], num:1, color:'#2563eb', label:'Casona del Porvenir'},
+    {latlng:[10.174705,-75.756782], num:2, color:'#2563eb', label:'Casa Fragata, Rosario Islands'},
+    {latlng:[6.242101,-75.185635], num:3, color:'#2563eb', label:'The Brown, Guatapé'},
+    {latlng:[6.2090,-75.5679], num:4, color:'#2563eb', label:'Hotel Du Parc, El Poblado'}
+  ],
+  day1: [
+    {latlng:[10.4246,-75.5490], num:1, color:'#2563eb', label:'Casona del Porvenir'},
+    {latlng:[10.4247,-75.5478], num:2, color:'#16a34a', label:'Parque Centenario'},
+    {latlng:[10.4235,-75.5501], num:3, color:'#16a34a', label:'Plaza Santo Domingo'},
+    {latlng:[10.4228,-75.5531], num:4, color:'#16a34a', label:'Walls / sunset spot'},
+    {latlng:[10.4258,-75.5476], num:5, color:'#f97316', label:'Restaurante Candé'}
+  ],
+  day2: [
+    {latlng:[10.4246,-75.5490], num:1, color:'#2563eb', label:'Casona del Porvenir'},
+    {latlng:[10.4206,-75.5389], num:2, color:'#16a34a', label:'Castillo San Felipe'},
+    {latlng:[10.4232,-75.5487], num:3, color:'#f97316', label:'Da Pietro (lunch)'},
+    {latlng:[10.424892,-75.547531], num:4, color:'#8b5cf6', label:'Crazy Salsa'},
+    {latlng:[10.4231,-75.5505], num:5, color:'#f97316', label:'La Vitrola (dinner, suggested)'}
+  ],
+  day3: [
+    {latlng:[10.4246,-75.5490], num:1, color:'#2563eb', label:'Depart Cartagena'},
+    {latlng:[10.174705,-75.756782], num:2, color:'#2563eb', label:'Casa Fragata, Isla Grande'}
+  ],
+  day4: [
+    {latlng:[10.174705,-75.756782], num:1, color:'#2563eb', label:'Casa Fragata, Isla Grande'},
+    {latlng:[10.4246,-75.5490], num:2, color:'#2563eb', label:'Back to Cartagena'},
+    {latlng:[10.4186,-75.5465], num:3, color:'#f97316', label:'Celele (dinner)'}
+  ],
+  day5: [
+    {latlng:[10.4246,-75.5490], num:1, color:'#2563eb', label:'Cartagena'},
+    {latlng:[6.1645,-75.4231], num:2, color:'#2563eb', label:'José María Córdova Airport (MDE)'},
+    {latlng:[6.242101,-75.185635], num:3, color:'#2563eb', label:'The Brown, Guatapé'}
+  ],
+  day6: [
+    {latlng:[6.242101,-75.185635], num:1, color:'#2563eb', label:'The Brown, Guatapé'},
+    {latlng:[6.2206,-75.1722], num:2, color:'#16a34a', label:'Piedra del Peñol'},
+    {latlng:[6.2322,-75.1611], num:3, color:'#f97316', label:'Guatapé town & zócalos'}
+  ],
+  day7: [
+    {latlng:[6.242101,-75.185635], num:1, color:'#2563eb', label:'The Brown, Guatapé (checkout)'},
+    {latlng:[6.2090,-75.5679], num:2, color:'#2563eb', label:'Hotel Du Parc, El Poblado'}
+  ],
+  day8: [
+    {latlng:[6.2090,-75.5679], num:1, color:'#2563eb', label:'El Poblado'},
+    {latlng:[6.2520,-75.6250], num:2, color:'#2563eb', label:'Comuna 13, San Javier'}
+  ],
+  day9: [
+    {latlng:[6.2090,-75.5679], num:1, color:'#2563eb', label:'El Poblado'},
+    {latlng:[6.2941,-75.5599], num:2, color:'#2563eb', label:'Acevedo Metro Station'},
+    {latlng:[6.2667,-75.5000], num:3, color:'#16a34a', label:'Parque Arví'}
+  ],
+  departure: [
+    {latlng:[6.1645,-75.4231], num:1, color:'#2563eb', label:'José María Córdova Airport (MDE)'}
+  ]
+};
+
+const CAT_COLOR = {restaurant:'#f97316', bar:'#8b5cf6', museum:'#2563eb', market:'#16a34a', activity:'#0d9488'};
+
+const exploreLocations = [
+  {name:'Restaurante Candé', cat:'restaurant', hood:'San Diego, Cartagena', note:'100% Cartagenera cooking · Day 1 dinner', latlng:[10.4258,-75.5476]},
+  {name:'Celele', cat:'restaurant', hood:'Getsemaní, Cartagena', note:'Latin America\'s 50 Best · Day 4 dinner', latlng:[10.4186,-75.5465]},
+  {name:'Da Pietro', cat:'restaurant', hood:'Centro, Cartagena', note:'Italian, reliable for kids', latlng:[10.4232,-75.5487]},
+  {name:'La Vitrola', cat:'restaurant', hood:'Centro, Cartagena', note:'Live music, classic splurge dinner', latlng:[10.4231,-75.5505]},
+  {name:'La Cevichería', cat:'restaurant', hood:'Centro, Cartagena', note:'Famous ceviche, Anthony Bourdain stop', latlng:[10.4238,-75.5497]},
+  {name:'Carmen', cat:'restaurant', hood:'San Diego, Cartagena', note:'Upscale tasting menu, adults-leaning', latlng:[10.4253,-75.5481]},
+  {name:'Alma', cat:'restaurant', hood:'Centro, Cartagena', note:'Elegant courtyard dining', latlng:[10.4243,-75.5494]},
+  {name:'Buena Vida', cat:'restaurant', hood:'Getsemaní, Cartagena', note:'Healthy bowls, smoothies', latlng:[10.4198,-75.5472]},
+  {name:'Pezetarian', cat:'restaurant', hood:'Getsemaní, Cartagena', note:'Seafood-forward, casual', latlng:[10.4201,-75.5478]},
+  {name:'El Boliche Cebichería', cat:'restaurant', hood:'Getsemaní, Cartagena', note:'Ceviche and cocktails', latlng:[10.4209,-75.5469]},
+  {name:'Demente', cat:'restaurant', hood:'San Diego, Cartagena', note:'Avant-garde tasting menu', latlng:[10.4248,-75.5487]},
+  {name:'OCI.MDE', cat:'restaurant', hood:'El Poblado, Medellín', note:'Modern Colombian tasting menu', latlng:[6.2095,-75.5661]},
+  {name:'Carmen Medellín', cat:'restaurant', hood:'El Poblado, Medellín', note:'Sister restaurant to Carmen Cartagena', latlng:[6.2088,-75.5675]},
+  {name:'El Cielo', cat:'restaurant', hood:'El Poblado, Medellín', note:'Experiential tasting menu', latlng:[6.2100,-75.5685]},
+  {name:'Mondongos', cat:'restaurant', hood:'El Poblado, Medellín', note:'Classic Paisa comfort food', latlng:[6.2078,-75.5690]},
+  {name:'Café del Mar', cat:'bar', hood:'On the Walls, Cartagena', note:'Sunset drinks atop the city walls', latlng:[10.4226,-75.5535]},
+  {name:'Alquímico', cat:'bar', hood:'Centro, Cartagena', note:'3-floor cocktail bar, lively at night', latlng:[10.4229,-75.5492]},
+  {name:'Quiebra Canto', cat:'bar', hood:'Getsemaní, Cartagena', note:'Salsa dancing, local favorite', latlng:[10.4212,-75.5461]},
+  {name:'Café Havana', cat:'bar', hood:'Getsemaní, Cartagena', note:'Live salsa band, touristy but fun', latlng:[10.4206,-75.5465]},
+  {name:'Erre Bar', cat:'bar', hood:'El Poblado, Medellín', note:'Rooftop cocktails', latlng:[6.2102,-75.5670]},
+  {name:'Castillo San Felipe de Barajas', cat:'museum', hood:'Centro, Cartagena', note:'Largest Spanish fort in the Americas · Day 2', latlng:[10.4206,-75.5389]},
+  {name:'Museo del Oro Zenú', cat:'museum', hood:'Centro, Cartagena', note:'Free gold museum, pre-Columbian artifacts', latlng:[10.4238,-75.5499]},
+  {name:'Palacio de la Inquisición', cat:'museum', hood:'Centro, Cartagena', note:'Inquisition history museum', latlng:[10.4243,-75.5498]},
+  {name:'Las Bóvedas', cat:'museum', hood:'Centro, Cartagena', note:'Historic dungeons turned craft shops', latlng:[10.4262,-75.5486]},
+  {name:'Museo de Antioquia', cat:'museum', hood:'Centro, Medellín', note:'Botero collection, Plaza Botero', latlng:[6.2518,-75.5683]},
+  {name:'Museo Casa de la Memoria', cat:'museum', hood:'Centro, Medellín', note:'Medellín conflict &amp; memory museum', latlng:[6.2583,-75.5698]},
+  {name:'Mercado de Bazurto', cat:'market', hood:'Bazurto, Cartagena', note:'Chaotic, authentic local produce market', latlng:[10.4147,-75.5295]},
+  {name:'Mercado de San Nicolás', cat:'market', hood:'Getsemaní, Cartagena', note:'Casual street-food market', latlng:[10.4214,-75.5456]},
+  {name:'Las Bóvedas Craft Market', cat:'market', hood:'Centro, Cartagena', note:'Souvenirs &amp; handicrafts', latlng:[10.4262,-75.5486]},
+  {name:'Mercado del Río', cat:'market', hood:'El Poblado, Medellín', note:'Food hall, dozens of stalls', latlng:[6.2135,-75.5745]},
+  {name:'Parque Centenario', cat:'activity', hood:'Centro, Cartagena', note:'Sloths &amp; iguanas in the trees · Day 1', latlng:[10.4247,-75.5478]},
+  {name:'Plaza Santo Domingo', cat:'activity', hood:'Centro, Cartagena', note:'Botero sculpture, lively plaza · Day 1', latlng:[10.4235,-75.5501]},
+  {name:'Las Murallas (City Walls)', cat:'activity', hood:'Centro, Cartagena', note:'Sunset walk · Day 1', latlng:[10.4228,-75.5531]},
+  {name:'Crazy Salsa', cat:'activity', hood:'Centro, Cartagena', note:'Private family salsa lesson · Day 2', latlng:[10.424892,-75.547531]},
+  {name:'Islas del Rosario boat tours', cat:'activity', hood:'Bahía de Cartagena', note:'Snorkeling, coral reef national park', latlng:[10.25,-75.68]},
+  {name:'Playa Blanca, Barú', cat:'activity', hood:'Barú', note:'Popular white-sand beach day trip', latlng:[10.2360,-75.5880]},
+  {name:'Comuna 13 Graffiti Tour', cat:'activity', hood:'San Javier, Medellín', note:'Street art &amp; escalators · Day 8', latlng:[6.2520,-75.6250]},
+  {name:'Metrocable', cat:'activity', hood:'Medellín', note:'Cable car over the city, cheap &amp; scenic', latlng:[6.2850,-75.5570]},
+  {name:'Parque Arví', cat:'activity', hood:'Santa Elena, Medellín', note:'Nature reserve, reached by cable car · Day 9', latlng:[6.2667,-75.5000]},
+  {name:'Pueblito Paisa', cat:'activity', hood:'Centro, Medellín', note:'Mini replica Antioquian village, city views', latlng:[6.2458,-75.5742]},
+  {name:'Guatapé &amp; El Peñol', cat:'activity', hood:'~1 hr from MDE airport', note:'Zócalos &amp; rock climb · Day 6', latlng:[6.2322,-75.1611]},
+  {name:'Plaza Botero', cat:'activity', hood:'Centro, Medellín', note:'23 Botero bronzes, free · Day 9', latlng:[6.2518,-75.5683]},
+  {name:'Jardín Botánico', cat:'activity', hood:'Centro, Medellín', note:'Botanical garden, butterfly house', latlng:[6.2697,-75.5636]}
+];
+
+// ---------- MAP ----------
+let map = L.map('map', {zoomControl:true}).setView(VIEW_CENTER.overview.center, VIEW_CENTER.overview.zoom);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  attribution: 'Tiles &copy; Esri',
+  maxZoom: 16
+}).addTo(map);
+
+let currentMarkers = [];
+let gpsMarker = null;
+
+function numIcon(num, color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="background:${color};color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);">${num}</div>`,
+    iconSize: [26,26], iconAnchor:[13,13]
+  });
+}
+
+function clearMarkers() {
+  currentMarkers.forEach(m => map.removeLayer(m));
+  currentMarkers = [];
+}
+
+function addMarkers(viewId) {
+  (dayMarkers[viewId] || []).forEach(m => {
+    const marker = L.marker(m.latlng, {icon: numIcon(m.num, m.color)})
+      .bindPopup(`<b>${m.label}</b>`)
+      .bindTooltip(m.label, {permanent:false, direction:'top'})
+      .addTo(map);
+    currentMarkers.push(marker);
+  });
+}
+
+function centerOnMe() {
+  if (gpsMarker) { map.setView(gpsMarker.getLatLng(), 14); }
+  else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+    });
+  }
+}
+
+if (navigator.geolocation) {
+  navigator.geolocation.watchPosition(pos => {
+    const ll = [pos.coords.latitude, pos.coords.longitude];
+    if (!gpsMarker) {
+      gpsMarker = L.circleMarker(ll, {radius:8, color:'#fff', weight:2, fillColor:'#2563eb', fillOpacity:1}).addTo(map);
+    } else {
+      gpsMarker.setLatLng(ll);
+    }
+  }, () => {}, {enableHighAccuracy:true});
+}
+
+// ---------- TABS ----------
+const tabsBar = document.getElementById('tabsBar');
+TABS.forEach(t => {
+  const el = document.createElement('div');
+  el.className = 'tab';
+  el.id = 'tab-' + t.id;
+  el.textContent = t.label;
+  el.onclick = () => switchView(t.id);
+  tabsBar.appendChild(el);
+});
+
+function switchView(viewId) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + viewId).classList.add('active');
+  document.getElementById('tab-' + viewId).classList.add('active');
+  document.getElementById('panel').scrollTop = 0;
+
+  const vc = VIEW_CENTER[viewId];
+  if (vc) map.setView(vc.center, vc.zoom);
+
+  clearMarkers();
+  if (viewId === 'explore') {
+    renderExplore(currentCat);
+  } else {
+    addMarkers(viewId);
+  }
+}
+
+// ---------- EXPLORE ----------
+let currentCat = 'all';
+const filterBar = document.getElementById('exploreFilters');
+const cats = [{id:'all', label:'All', color:'#374151'}, {id:'restaurant', label:'Restaurants', color:CAT_COLOR.restaurant},
+  {id:'bar', label:'Bars', color:CAT_COLOR.bar}, {id:'museum', label:'Museums', color:CAT_COLOR.museum},
+  {id:'market', label:'Markets', color:CAT_COLOR.market}, {id:'activity', label:'Activities', color:CAT_COLOR.activity}];
+cats.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'fbtn' + (c.id === 'all' ? ' active' : '');
+  b.textContent = c.label;
+  b.id = 'fbtn-' + c.id;
+  b.style.setProperty('--c', c.color);
+  b.onclick = () => { currentCat = c.id; renderExplore(c.id); };
+  filterBar.appendChild(b);
+});
+
+function renderExplore(cat) {
+  document.querySelectorAll('.fbtn').forEach(b => {
+    const isActive = b.id === 'fbtn-' + cat;
+    b.classList.toggle('active', isActive);
+    b.style.background = isActive ? b.style.getPropertyValue('--c') : '#fff';
+    b.style.color = isActive ? '#fff' : 'var(--gray-600)';
+  });
+  const list = document.getElementById('exploreList');
+  list.innerHTML = '';
+  clearMarkers();
+  const items = cat === 'all' ? exploreLocations : exploreLocations.filter(l => l.cat === cat);
+  items.forEach((loc, i) => {
+    const row = document.createElement('div');
+    row.className = 'explore-item';
+    row.innerHTML = `<span class="edot" style="background:${CAT_COLOR[loc.cat]}"></span>
+      <div><div class="en">${loc.name}</div><div class="eh">${loc.hood} · ${loc.note}</div></div>`;
+    row.onclick = () => { map.flyTo(loc.latlng, 15); marker.openPopup(); };
+    const marker = L.marker(loc.latlng, {icon: numIcon(i+1, CAT_COLOR[loc.cat])})
+      .bindPopup(`<b>${loc.name}</b><br>${loc.hood}<br>${loc.note}`)
+      .bindTooltip(loc.name, {permanent:false, direction:'top'})
+      .addTo(map);
+    currentMarkers.push(marker);
+    row.onclick = () => { map.flyTo(loc.latlng, 15); marker.openPopup(); };
+    list.appendChild(row);
+  });
+}
+
+// ---------- SEARCH ----------
+function doSearch(query) {
+  const resultsEl = document.getElementById('searchResults');
+  query = query.trim().toLowerCase();
+  if (!query) { resultsEl.style.display = 'none'; return; }
+
+  let results = [];
+  document.querySelectorAll('.view').forEach(view => {
+    const viewId = view.id.replace('view-', '');
+    view.querySelectorAll('.stop-card').forEach(card => {
+      const name = card.querySelector('.stop-name')?.textContent || '';
+      const desc = card.querySelector('.stop-desc')?.textContent || '';
+      if ((name + ' ' + desc).toLowerCase().includes(query)) {
+        results.push({label:name, sub: TABS.find(t=>t.id===viewId)?.label || viewId, action: () => switchView(viewId)});
+      }
+    });
+  });
+  exploreLocations.forEach(loc => {
+    if ((loc.name + ' ' + loc.hood + ' ' + loc.note).toLowerCase().includes(query)) {
+      results.push({label: loc.name, sub: 'Explore · ' + loc.hood, action: () => { switchView('explore'); setTimeout(()=>map.flyTo(loc.latlng,15),300); }});
+    }
+  });
+
+  if (!results.length) {
+    resultsEl.innerHTML = '<div class="res-item"><span>No matches</span></div>';
+  } else {
+    resultsEl.innerHTML = '';
+    results.slice(0,15).forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'res-item';
+      div.innerHTML = `<b>${r.label}</b><span>${r.sub}</span>`;
+      div.onclick = () => { r.action(); resultsEl.style.display = 'none'; document.getElementById('searchInput').value=''; };
+      resultsEl.appendChild(div);
+    });
+  }
+  resultsEl.style.display = 'block';
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) document.getElementById('searchResults').style.display = 'none';
+});
+
+// ---------- INIT ----------
+switchView('overview');
+</script>
+
+</body>
+</html>
