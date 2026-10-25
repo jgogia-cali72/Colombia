@@ -106,6 +106,18 @@
   .explore-item .en { font-size:13px; font-weight:700; }
   .explore-item .eh { font-size:11px; color:var(--gray-500); }
 
+  .review-card { border:1px solid var(--gray-200); border-radius:12px; padding:12px 14px; margin-bottom:12px; background:#fff; cursor:pointer; }
+  .review-card:hover { border-color: var(--gray-300); }
+  .review-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:4px; }
+  .review-meta { font-size:11px; color:var(--gray-500); margin-bottom:6px; }
+  .verdict { font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
+  .v-loved { background:var(--green-bg); color:var(--green-text); }
+  .v-good { background:var(--blue-light); color:#1e40af; }
+  .v-mixed { background:var(--amber-bg); color:var(--amber-text); }
+  .v-meh { background:var(--red-bg); color:var(--red-text); }
+  .review-points { margin:6px 0 0; padding-left:18px; font-size:12.5px; color:var(--gray-600); line-height:1.5; }
+  .review-points li.minus { color:var(--gray-500); }
+
   @media (max-width: 760px) {
     .panel { width:100%; }
     .mapwrap { display:none; }
@@ -281,7 +293,7 @@
       </div>
       <div class="stop-card">
         <div class="time-label">Morning</div>
-        <div class="stop-name">🚶 Walking tour with Dennis — Journey and Travel</div>
+        <div class="stop-name">🚶 Walking tour — JT Travel (guide: Daniel)</div>
         <div class="stop-desc">Covers the Centro, Getsemaní and Castillo San Felipe de Barajas. Starts by Parque Centenario and the Clock Tower gate; Dennis will adjust the stops to how the day is going. Bring water and hats for the castle — little shade.</div>
         <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Parque+Centenario+Cartagena" target="_blank">Start: Parque Centenario, Centro</a></div>
         <div class="directions"><b>From hotel:</b> 10–15 min walk, or a short taxi if it's already hot.</div>
@@ -615,6 +627,13 @@
       </div>
     </div>
 
+    <!-- REVIEWS -->
+    <div class="view" id="view-reviews">
+      <h2 class="day-title">Reviews</h2>
+      <div class="day-date">Our take on each place, as we go</div>
+      <div id="reviewList"></div>
+    </div>
+
     <!-- EXPLORE -->
     <div class="view" id="view-explore">
       <h2 class="day-title">Explore</h2>
@@ -645,6 +664,7 @@ const TABS = [
   {id:'day8', label:'Day 8 · Oct 31'},
   {id:'day9', label:'Day 9 · Nov 1'},
   {id:'departure', label:'Departure · Nov 2'},
+  {id:'reviews', label:'Reviews'},
   {id:'explore', label:'Explore'}
 ];
 
@@ -660,6 +680,7 @@ const VIEW_CENTER = {
   day8:       {center:[6.225, -75.59], zoom:12},
   day9:       {center:[6.26, -75.53], zoom:11},
   departure:  {center:[6.1645, -75.4231], zoom:11},
+  reviews:    {center:[10.4235, -75.5450], zoom:14},
   explore:    {center:[9.2, -75.0], zoom:6}
 };
 
@@ -951,6 +972,54 @@ function doSearch(query) {
 document.addEventListener('click', e => {
   if (!e.target.closest('.search-wrap')) document.getElementById('searchResults').style.display = 'none';
 });
+
+// ---------- REVIEWS ----------
+const VERDICT = {
+  loved: {label:'👍 Loved it', cls:'v-loved', color:'#16a34a'},
+  good:  {label:'🙂 Good', cls:'v-good', color:'#2563eb'},
+  mixed: {label:'🤷 Mixed', cls:'v-mixed', color:'#d97706'},
+  meh:   {label:'😐 Mediocre', cls:'v-meh', color:'#dc2626'}
+};
+// Newest first. Add new reviews to the top.
+const REVIEWS = [
+  {name:'Walking tour — JT Travel', emoji:'🚶', type:'Tour', day:'day2', date:'Sun Oct 25', verdict:'loved', latlng:[10.4206,-75.5389],
+   who:'Booked with Dennis · Guide: Daniel',
+   plus:['Daniel was a very fun Rasta guy and made it fun for the kids', 'Saw Castillo San Felipe and Getsemaní', 'Lucked out with overcast weather'],
+   minus:['Still very humid — kids were done after ~3 hrs despite several A/C breaks and ice cream']},
+  {name:'Casona del Porvenir', emoji:'🏨', type:'Hotel', day:'day1', date:'Oct 24–26', verdict:'loved', latlng:[10.4246,-75.5490],
+   who:'Master suite',
+   plus:['Hotel is amazing', 'Master suite is perfect for five', 'Breakfast included and nicely presented'],
+   minus:['Breakfast food itself is just OK']},
+  {name:'Restaurante Candé', emoji:'🍴', type:'Dinner', day:'day1', date:'Sat Oct 24', verdict:'meh', latlng:[10.4258,-75.5476],
+   who:'',
+   plus:[],
+   minus:['Mediocre dinner']}
+];
+
+function renderReviews() {
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  REVIEWS.forEach(r => {
+    const v = VERDICT[r.verdict];
+    const card = document.createElement('div');
+    card.className = 'review-card stop-card';
+    card.innerHTML = `
+      <div class="review-head"><div class="stop-name">${r.emoji} ${r.name}</div><span class="verdict ${v.cls}">${v.label}</span></div>
+      <div class="review-meta">${r.type} · ${r.date}${r.who ? ' · ' + r.who : ''}</div>
+      <div class="stop-desc" style="margin-bottom:0;">
+        <ul class="review-points">
+          ${r.plus.map(t => `<li>${t}</li>`).join('')}
+          ${r.minus.map(t => `<li class="minus">${t}</li>`).join('')}
+        </ul>
+      </div>`;
+    card.onclick = () => { if (r.latlng) map.flyTo(r.latlng, 15); };
+    list.appendChild(card);
+  });
+}
+renderReviews();
+dayMarkers.reviews = REVIEWS.filter(r => r.latlng).map((r, i) => ({
+  latlng: r.latlng, num: i + 1, color: VERDICT[r.verdict].color, label: `${r.name} — ${VERDICT[r.verdict].label}`
+}));
 
 // ---------- INIT ----------
 switchView('overview');
