@@ -168,7 +168,7 @@
 
       <div class="section-label">Trip Timeline</div>
       <div class="timeline-item" onclick="switchView('day1')"><div class="td">Oct 23–24</div><div><div class="tt">Travel day → Cartagena</div><div class="ts">SFO → FLL → CTG, Casona del Porvenir, dinner at Candé</div></div></div>
-      <div class="timeline-item" onclick="switchView('day2')"><div class="td">Oct 25</div><div><div class="tt">Cartagena</div><div class="ts">Walking tour with Dennis incl. the castle, salsa 2 PM, Andrés Carne de Res</div></div></div>
+      <div class="timeline-item" onclick="switchView('day2')"><div class="td">Oct 25</div><div><div class="tt">Cartagena</div><div class="ts">Walking tour with Dennis incl. the castle, salsa 2 PM, Juan del Mar</div></div></div>
       <div class="timeline-item" onclick="switchView('day3')"><div class="td">Oct 26</div><div><div class="tt">Rosario Islands</div><div class="ts">Full day on the Recuca — Playa Blanca, snorkeling, overnight at Fragata</div></div></div>
       <div class="timeline-item" onclick="switchView('day4')"><div class="td">Oct 27</div><div><div class="tt">Rosario → Cartagena</div><div class="ts">Boat back, Getsemaní, dinner at Celele</div></div></div>
       <div class="timeline-item" onclick="switchView('day5')"><div class="td">Oct 28</div><div><div class="tt">Cartagena → Guatapé</div><div class="ts">Fly CTG → MDE, GuatExpress SUV to The Brown</div></div></div>
@@ -194,7 +194,7 @@
           <span class="tag tag-amber">Confirm: Casona del Colegio Tue Oct 27 — 2nd room (Luxury 06) is waitlisted</span>
           <span class="tag tag-amber">Confirm: Hotel Du Parc covers 5 guests</span>
         </div>
-        <div class="stop-desc">Booked &amp; confirmed: all flights, Casona del Porvenir (Oct 24–26), Casona del Colegio (Oct 27), Dennis walking tour, Recuca boat day (deposit paid), Crazy Salsa, Candé, Andrés Carne de Res, Fragata overnight, Celele, Carmen, The Brown, Koora Canyoning, Hotel Du Parc.</div>
+        <div class="stop-desc">Booked &amp; confirmed: all flights, Casona del Porvenir (Oct 24–26), Casona del Colegio (Oct 27), Dennis walking tour, Recuca boat day (deposit paid), Crazy Salsa, Candé, Juan del Mar, Fragata overnight, Celele, Carmen, The Brown, Koora Canyoning, Hotel Du Parc.</div>
       </div>
     </div>
 
@@ -328,12 +328,12 @@
         <div class="directions"><b>From hotel:</b> 10 min walk.</div>
       </div>
       <div class="stop-card">
-        <div class="time-label">7:00 PM</div>
-        <div class="stop-name">🍴 Dinner at Andrés Carne de Res</div>
-        <div class="stop-desc">Colombian grill with over-the-top decor, music and costumed staff — loud, chaotic, and kids love it.</div>
-        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Andres+Carne+de+Res+Cartagena+Calle+de+la+Serrezuela" target="_blank">Cl. de la Serrezuela #39-21, San Diego</a></div>
-        <div class="directions"><b>From hotel:</b> 5 min walk (same street as Candé).</div>
-        <div class="tags"><span class="tag tag-green">✓ Booked · 7:00 PM</span><span class="tag tag-blue">👦 Kids love this</span></div>
+        <div class="time-label">6:30 PM</div>
+        <div class="stop-name">🐟 Dinner at Juan del Mar</div>
+        <div class="stop-desc">Seafood restaurant on Plaza de San Diego. Smart casual dress code (no tank tops or flip-flops). They hold the table for 15 minutes. Questions: +57 312 714 8778.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Juan+del+Mar+Plaza+de+San+Diego+Cartagena" target="_blank">Plaza de San Diego #8-12, San Diego</a></div>
+        <div class="directions"><b>From hotel:</b> ~5 min walk.</div>
+        <div class="tags"><span class="tag tag-green">✓ Confirmed · 6:30 PM · Table for 5</span><span class="tag tag-amber">👔 Smart casual</span></div>
       </div>
     </div>
 
@@ -708,7 +708,7 @@ const dayMarkers = {
     {latlng:[10.4206,-75.5389], num:4, color:'#16a34a', label:'Castillo San Felipe (on the tour)'},
     {latlng:[10.424892,-75.547531], num:5, color:'#8b5cf6', label:'Crazy Salsa · 2 PM'},
     {latlng:[10.4226,-75.5535], num:6, color:'#8b5cf6', label:'Café del Mar · sunset'},
-    {latlng:[10.4256,-75.5479], num:7, color:'#f97316', label:'Andrés Carne de Res · 7 PM'}
+    {latlng:[10.4268,-75.5470], num:7, color:'#f97316', label:'Juan del Mar · 6:30 PM'}
   ],
   day3: [
     {latlng:[10.4215,-75.5493], num:1, color:'#2563eb', label:'Boat launch · meet Indira 8:30 AM'},
@@ -759,7 +759,8 @@ const CAT_COLOR = {restaurant:'#f97316', bar:'#8b5cf6', museum:'#2563eb', market
 const exploreLocations = [
   {name:'Restaurante Candé', cat:'restaurant', hood:'San Diego, Cartagena', note:'100% Cartagenera cooking · Day 1 dinner', latlng:[10.4258,-75.5476]},
   {name:'Celele', cat:'restaurant', hood:'Getsemaní, Cartagena', note:'Latin America\'s 50 Best · Day 4 dinner', latlng:[10.4186,-75.5465]},
-  {name:'Andrés Carne de Res', cat:'restaurant', hood:'San Diego, Cartagena', note:'Party-style Colombian grill · Day 2 dinner', latlng:[10.4256,-75.5479]},
+  {name:'Juan del Mar', cat:'restaurant', hood:'San Diego, Cartagena', note:'Seafood on Plaza de San Diego · Day 2 dinner', latlng:[10.4268,-75.5470]},
+  {name:'Andrés Carne de Res', cat:'restaurant', hood:'San Diego, Cartagena', note:'Party-style Colombian grill', latlng:[10.4256,-75.5479]},
   {name:'Da Pietro', cat:'restaurant', hood:'Centro, Cartagena', note:'Italian, reliable for kids', latlng:[10.4232,-75.5487]},
   {name:'La Vitrola', cat:'restaurant', hood:'Centro, Cartagena', note:'Live music, classic splurge dinner', latlng:[10.4231,-75.5505]},
   {name:'La Cevichería', cat:'restaurant', hood:'San Diego, Cartagena', note:'Famous ceviche, Bourdain stop', latlng:[10.4238,-75.5497]},
