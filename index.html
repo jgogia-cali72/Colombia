@@ -174,7 +174,7 @@
       <div class="timeline-item" onclick="switchView('day5')"><div class="td">Oct 28</div><div><div class="tt">Cartagena → Guatapé</div><div class="ts">Fly CTG → MDE, GuatExpress SUV to The Brown</div></div></div>
       <div class="timeline-item" onclick="switchView('day6')"><div class="td">Oct 29</div><div><div class="tt">Canyoning &amp; Guatapé town</div><div class="ts">Koora Canyoning, zócalos, lake boat ride</div></div></div>
       <div class="timeline-item" onclick="switchView('day7')"><div class="td">Oct 30</div><div><div class="tt">El Peñol → Medellín</div><div class="ts">Climb the rock, checkout, Hotel Du Parc, Café Zorba</div></div></div>
-      <div class="timeline-item" onclick="switchView('day8')"><div class="td">Oct 31</div><div><div class="tt">Comuna 13</div><div class="ts">Tour with Erika at 9 AM, Halloween afternoon, dinner at Carmen</div></div></div>
+      <div class="timeline-item" onclick="switchView('day8')"><div class="td">Oct 31</div><div><div class="tt">Comuna 13</div><div class="ts">Tour with Erika at 9:30 AM, Halloween afternoon, dinner at Carmen</div></div></div>
       <div class="timeline-item" onclick="switchView('day9')"><div class="td">Nov 1</div><div><div class="tt">Parque Arví</div><div class="ts">Metrocable, Parque Arví, dinner at Mondongo's</div></div></div>
       <div class="timeline-item" onclick="switchView('departure')"><div class="td">Nov 2</div><div><div class="tt">Fly home</div><div class="ts">MDE → IAH → SFO (Colombian holiday Monday)</div></div></div>
 
@@ -562,18 +562,25 @@
       <div class="day-date">Saturday, October 31, 2026</div>
 
       <div class="stop-card">
-        <div class="time-label">9:00 AM</div>
+        <div class="time-label">9:30 AM</div>
         <div class="stop-name">🎨 Comuna 13 tour with Erika</div>
         <div class="stop-desc">Graffiti, the outdoor escalators, and the neighborhood's story of transformation. Some stairs, but very doable for the 7-year-old.</div>
         <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Comuna+13+San+Javier+Medellin" target="_blank">Comuna 13, San Javier, Medellín</a></div>
         <div class="directions"><b>From El Poblado:</b> ~30–40 min by taxi/rideshare.</div>
-        <div class="tags"><span class="tag tag-amber">💳 Arranged · not yet paid / confirmed</span><span class="tag tag-blue">9:00 AM</span></div>
+        <div class="tags"><span class="tag tag-amber">💳 Arranged · not yet paid / confirmed</span><span class="tag tag-blue">9:30 AM</span></div>
+      </div>
+      <div class="stop-card">
+        <div class="time-label">3:00 PM</div>
+        <div class="stop-name">🍽️ OCIO — reservation for 5</div>
+        <div class="stop-desc">Reserved under Jaspaul Gogia. Planning to cancel — too close to the 6:45 PM Carmen dinner.</div>
+        <div class="addr">📍 <a href="https://www.google.com/maps/search/?api=1&query=Transversal+7A+30-224+La+Florida+El+Poblado+Medellin" target="_blank">Transversal 7A #30-224, Casa 130, La Florida, El Poblado</a></div>
+        <div class="tags"><span class="tag tag-green">✓ Reserva confirmada</span><span class="tag tag-amber">✕ To cancel (Fri Oct 30)</span></div>
       </div>
       <div class="stop-card">
         <div class="time-label">Afternoon</div>
         <div class="stop-name">🎃 Halloween, Colombian style</div>
-        <div class="stop-desc">Kids dress up and trick-or-treat at the malls — Santafé and El Tesoro are close to El Poblado. Bring costumes if you packed any; otherwise pool time at the hotel.</div>
-        <div class="tags"><span class="tag tag-amber">💡 Suggested</span></div>
+        <div class="stop-desc"><b>Santafé</b> (~5 min taxi from the hotel): free candy for kids 3–7 PM from a giant pumpkin, plus roving costumed shows at 4:00, 6:00 and 7:00 PM. Easiest fit: catch the 4 PM show, then back to the hotel to change for Carmen.<br><b>El Tesoro</b> (~10–15 min taxi): Halloween Festival with free crafts, face painting, VR and a dragon challenge, 2–8 PM. Its candy handout is 6–7 PM, which clashes with dinner.</div>
+        <div class="tags"><span class="tag tag-amber">💡 Suggested · Santafé 4 PM show</span></div>
       </div>
       <div class="stop-card">
         <div class="time-label">6:45 PM</div>
@@ -766,7 +773,7 @@ const dayMarkers = {
   ],
   day8: [
     {latlng:[6.2090,-75.5679], num:1, color:'#2563eb', label:'Hotel Du Parc'},
-    {latlng:[6.2520,-75.6250], num:2, color:'#16a34a', label:'Comuna 13 · 9 AM'},
+    {latlng:[6.2520,-75.6250], num:2, color:'#16a34a', label:'Comuna 13 · 9:30 AM'},
     {latlng:[6.1966,-75.5585], num:3, color:'#8b5cf6', label:'Santafé mall (Halloween)'},
     {latlng:[6.2088,-75.5675], num:4, color:'#f97316', label:'Carmen · 6:45 PM'}
   ],
@@ -826,7 +833,7 @@ const exploreLocations = [
   {name:'Crazy Salsa', cat:'activity', hood:'Centro, Cartagena', note:'Private family salsa lesson · Day 2, 2 PM', latlng:[10.424892,-75.547531]},
   {name:'Islas del Rosario boat tours', cat:'activity', hood:'Bahía de Cartagena', note:'Snorkeling, coral reef national park', latlng:[10.25,-75.68]},
   {name:'Playa Blanca, Barú', cat:'activity', hood:'Barú', note:'First stop on the Recuca · Day 3', latlng:[10.2360,-75.5880]},
-  {name:'Comuna 13 Graffiti Tour', cat:'activity', hood:'San Javier, Medellín', note:'Tour with Erika · Day 8, 9 AM', latlng:[6.2520,-75.6250]},
+  {name:'Comuna 13 Graffiti Tour', cat:'activity', hood:'San Javier, Medellín', note:'Tour with Erika · Day 8, 9:30 AM', latlng:[6.2520,-75.6250]},
   {name:'Metrocable', cat:'activity', hood:'Medellín', note:'Cable car over the city, cheap &amp; scenic', latlng:[6.2850,-75.5570]},
   {name:'Parque Arví', cat:'activity', hood:'Santa Elena, Medellín', note:'Nature reserve, reached by cable car · Day 9', latlng:[6.2667,-75.5000]},
   {name:'Pueblito Paisa', cat:'activity', hood:'Centro, Medellín', note:'Mini replica Antioquian village, city views', latlng:[6.2458,-75.5742]},
